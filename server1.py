@@ -20,6 +20,11 @@ def proxy_thread(clientSocket, client_address, config):
    	 # get url
 	url = first_line.split(' ')[1]
         #print(url)
+		# Check if the host:port is blacklisted
+	for i in range(0, len(config['BLACKLIST_DOMAINS'])):
+		if config['BLACKLIST_DOMAINS'][i] in url:
+			print "Blacklisted Domain , cant connect\n"
+			clientSocket.close()
 
 	http_pos = url.find("://") # find pos of ://
 	if (http_pos==-1):
@@ -72,7 +77,7 @@ def start_server(config):
 		server_fd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	except:
 		print("Socket failed to be created. Error: " + str(sys.exc_info()))
-		sys.exit();
+		sys.exit()
 
 	# Set socket options to re-use addresses and ports to remove correspinding errors
 	try:
@@ -80,21 +85,21 @@ def start_server(config):
 		server_fd.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 	except:
 		print("Error in setting socket options. Error: " + str(sys.exc_info()))
-		sys.exit();
+		sys.exit()
 
 	# Bind the socket to a host, and a port   
 	try:
 		server_fd.bind((config['HOST_NAME'], config['BIND_PORT']))
 	except:
 		print("Bind failed. Error: " + str(sys.exc_info()))
-		sys.exit();
+		sys.exit()
 
 	# Listen for incoming connections, max queue size is currently 5
 	try:
 		server_fd.listen(5)
 	except:
 		print("Error in listening to socket. Error: " + str(sys.exc_info()))
-		sys.exit();
+		sys.exit()
 
 	while True:
 
@@ -103,7 +108,7 @@ def start_server(config):
 			(clientSocket, client_address) = server_fd.accept()
 		except:
 			print("Error in accepting incoming connection. Error: " + str(sys.exc_info()))
-			sys.exit();
+			sys.exit()
 	
 		try:
 			#self._getClientName(client_address)
@@ -112,7 +117,7 @@ def start_server(config):
 			d.start()
 		except:
 			print("Error in creating thread for request. Error: " + str(sys.exc_info()))
-			sys.exit();
+			sys.exit()
 
 
 config = {
@@ -120,6 +125,10 @@ config = {
 	'BIND_PORT': 20100,
 	'MAX_REQUEST_LEN': 4096,
 	'CONNECTION_TIMEOUT': 7,
+    'BLACKLIST_DOMAINS':[
+        "facebook.com",
+        "google.com"
+    ],
 }
 
 start_server(config)
