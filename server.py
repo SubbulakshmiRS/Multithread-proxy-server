@@ -71,31 +71,34 @@ def start_server(config):
 	# Create a TCP socket
 	try:
 		server_fd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
 	except:
 		print("Socket failed to be created. Error: " + str(sys.exc_info()))
-		sys.exit();
+		sys.exit()
 
 	# Set socket options to re-use addresses and ports to remove correspinding errors
 	try:
 		#server_fd.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR | socket.SO_REUSEPORT, 1)
 		server_fd.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
 	except:
 		print("Error in setting socket options. Error: " + str(sys.exc_info()))
-		sys.exit();
+		sys.exit()
 
 	# Bind the socket to a host, and a port   
 	try:
 		server_fd.bind((config['HOST_NAME'], config['BIND_PORT']))
+
 	except:
 		print("Bind failed. Error: " + str(sys.exc_info()))
-		sys.exit();
+		sys.exit()
 
 	# Listen for incoming connections, max queue size is currently 10
 	try:
 		server_fd.listen(10)
 	except:
 		print("Error in listening to socket. Error: " + str(sys.exc_info()))
-		sys.exit();
+		sys.exit()
 
 	while True:
 
@@ -105,6 +108,7 @@ def start_server(config):
 		except:
 			print("Error in accepting incoming connection. Error: " + str(sys.exc_info()))
 			sys.exit();
+
 	
 		try:
 			#self._getClientName(client_address)

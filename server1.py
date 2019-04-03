@@ -1,6 +1,8 @@
+from cache import store,length
 import socket
 import sys
 import threading
+from time import gmtime, strftime
 #import signal
 	
 
@@ -26,6 +28,31 @@ def proxy_thread(clientSocket, client_address, config):
 			print "Blacklisted Domain , cant connect\n"
 			clientSocket.close()
 
+   	check = 0
+        global found
+        found  = -1
+	for i in range(0, len(store)):
+		if store[i]["url"] == url: 
+            		check += 1
+                        global found
+            		found = i 
+            		store[i]["requests"] += 1 
+            		store[i]["time"] = strftime("%a, %d %b %Y %H:%M:%S GMT", gmtime())
+            		store[i]["data"] = ""
+            		break 
+    
+        if check == 0:
+                length += 1
+                global found 
+                found = length - 1
+                store[length-1]["url"] = url
+                store[length-1]["requests"] += 1
+                store[length-1]["time"] = strftime("%a, %d %b %Y %H:%M:%S GMT", gmtime())
+                store[length-1]["data"] = ""
+
+        global found
+        print found 
+        print "dfvd\n"
 	http_pos = url.find("://") # find pos of ://
 	if (http_pos==-1):
 		temp = url
@@ -63,9 +90,11 @@ def proxy_thread(clientSocket, client_address, config):
 
 		if (len(data) > 0):
 			#print(data)
+                        store[found]["data"] += data 
 			clientSocket.send(data) # send to browser/client
 		else:
 			break
+    
 
 def start_server(config):
 
